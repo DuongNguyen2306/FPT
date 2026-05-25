@@ -9,7 +9,7 @@ import {
 
 const COLS = [
   {
-    title: "Về demo",
+    title: "Về FPT Telecom",
     links: [
       { href: "#", label: "Giới thiệu" },
       { href: "#", label: "Tin tức" },
@@ -47,7 +47,7 @@ const COLS = [
 ];
 
 const SOCIAL = [
-  { href: "https://www.facebook.com", label: "Facebook", Icon: Facebook },
+  { href: "https://www.facebook.com/FPTTelecom", label: "Facebook", Icon: Facebook },
   { href: "https://www.youtube.com", label: "YouTube", Icon: Youtube },
   { href: "https://www.instagram.com", label: "Instagram", Icon: Instagram },
 ];
@@ -58,17 +58,15 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
         <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-md">
-            <a href="#" className="inline-flex items-center gap-2">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-fpt text-sm font-extrabold text-white shadow-sm">
+            <a href="/" className="inline-flex items-center gap-2">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-sm font-extrabold text-white shadow-sm">
                 FPT
               </span>
-              <span className="text-lg font-bold tracking-tight text-fpt-blue-dark">
-                Telecom <span className="font-semibold text-slate-500">· Demo</span>
-              </span>
+              <span className="text-lg font-bold tracking-tight text-secondary">FPT Telecom</span>
             </a>
             <p className="mt-4 text-sm leading-relaxed text-slate-600">
-              Trang landing minh họa giao diện — không phải website chính thức của FPT Telecom. Nội dung,
-              giá cả và chính sách chỉ mang tính tham khảo khi xây dựng UI.
+              Cung cấp dịch vụ Internet, Truyền hình, Camera và giải pháp viễn thông cho gia đình và doanh
+              nghiệp trên toàn quốc.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-2">
@@ -79,7 +77,7 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-fpt hover:text-fpt"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-primary hover:text-primary"
                 >
                   <Icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
                 </a>
@@ -94,30 +92,27 @@ export default function Footer() {
               </p>
               <a
                 href="tel:19006600"
-                className="mt-1 inline-flex items-center gap-2 text-2xl font-extrabold tracking-tight text-fpt-blue sm:text-3xl"
+                className="mt-1 inline-flex items-center gap-2 text-2xl font-extrabold tracking-tight text-secondary sm:text-3xl"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                   <Phone className="h-5 w-5" strokeWidth={2} />
                 </span>
                 1900 6600
               </a>
-              <p className="mt-2 text-xs text-slate-500">Số minh họa — không gọi được nếu chưa cấu hình.</p>
+              <p className="mt-2 text-xs text-slate-500">Miễn phí cuộc gọi từ điện thoại cố định.</p>
             </div>
             <div className="h-px w-full bg-slate-100 sm:hidden" aria-hidden />
             <div className="space-y-3 text-sm text-slate-600">
               <a
-                href="mailto:contact@demo.local"
-                className="flex items-start gap-3 transition hover:text-fpt"
+                href="mailto:contact@fpt.vn"
+                className="flex items-start gap-3 transition hover:text-primary"
               >
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                <span>contact@demo.local</span>
+                <span>contact@fpt.vn</span>
               </a>
               <div className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
-                <span>
-                  Tòa nhà minh họa, Quận Cầu Giấy, Hà Nội
-                  <span className="mt-1 block text-xs text-slate-500">(Địa chỉ demo, không tra cứu thật.)</span>
-                </span>
+                <span>10 Phạm Văn Bạch, Dịch Vọng, Cầu Giấy, Hà Nội</span>
               </div>
             </div>
           </div>
@@ -126,15 +121,13 @@ export default function Footer() {
         <div className="mt-12 grid gap-10 border-t border-slate-200 pt-10 sm:grid-cols-2 lg:grid-cols-4">
           {COLS.map((col) => (
             <div key={col.title}>
-              <h2 className="text-sm font-bold uppercase tracking-wide text-fpt-blue-dark">
-                {col.title}
-              </h2>
+              <h2 className="text-sm font-bold uppercase tracking-wide text-secondary">{col.title}</h2>
               <ul className="mt-4 space-y-2.5">
                 {col.links.map((l) => (
                   <li key={l.label}>
                     <a
                       href={l.href}
-                      className="text-sm text-slate-600 transition hover:text-fpt"
+                      className="text-sm text-slate-600 transition hover:text-primary"
                     >
                       {l.label}
                     </a>
@@ -144,24 +137,19 @@ export default function Footer() {
             </div>
           ))}
         </div>
-
-        <div className="mt-10 rounded-xl border border-dashed border-slate-200 bg-white/80 px-4 py-3 text-center text-xs text-slate-500">
-          Đây là bản demo UI. Thông tin doanh nghiệp, giấy phép và logo thương hiệu thật không được sử dụng
-          cho mục đích thương mại khi chưa được cấp phép.
-        </div>
       </div>
 
       <div className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-center text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:text-left lg:px-8">
-          <p>© {new Date().getFullYear()} Bản demo — không liên kết với FPT Telecom.</p>
+          <p>© {new Date().getFullYear()} FPT Telecom. Bảo lưu mọi quyền.</p>
           <p className="sm:text-right">
-            <a href="#" className="hover:text-fpt">
+            <a href="#" className="hover:text-primary">
               Chính sách bảo mật
             </a>
             <span className="mx-2 text-slate-300" aria-hidden>
               |
             </span>
-            <a href="#" className="hover:text-fpt">
+            <a href="#" className="hover:text-primary">
               Điều khoản
             </a>
           </p>

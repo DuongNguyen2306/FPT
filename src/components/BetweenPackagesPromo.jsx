@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 /**
  * Thanh ưu đãi đặt giữa hai loại gói: Internet và Truyền hình (FPT Play).
  */
-export default function BetweenPackagesPromo({ onPickCombo }) {
+export default function BetweenPackagesPromo({ promoText, onPickCombo }) {
   return (
     <motion.aside
       initial={{ opacity: 0, y: 10 }}
@@ -26,7 +26,8 @@ export default function BetweenPackagesPromo({ onPickCombo }) {
               Ưu đãi nổi bật
             </p>
             <p className="mt-1 text-sm font-semibold leading-snug sm:text-base">
-              Giảm thêm khi đăng ký online & chọn gói combo — kết hợp Internet tốc độ cao với FPT Play cho cả nhà.
+              {promoText ??
+                "Chọn gói combo Internet + FPT Play từ danh sách gói bên trên."}
             </p>
           </div>
         </div>
@@ -34,7 +35,7 @@ export default function BetweenPackagesPromo({ onPickCombo }) {
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:shrink-0">
           <a
             href="tel:19006600"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-sm font-bold text-fpt-blue shadow-md transition hover:bg-white sm:w-auto"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-sm font-bold text-secondary shadow-md transition hover:bg-white sm:w-auto"
           >
             <Phone className="h-4 w-4 shrink-0" />
             1900 6600

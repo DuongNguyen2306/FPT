@@ -1,9 +1,9 @@
 import ProductPlanCard from "./ProductPlanCard.jsx";
 
-export default function PackageCard({ pkg, onRegister }) {
+export default function PackageCard({ pkg, onRegister, onViewDetails, variant = "grid" }) {
   return (
     <ProductPlanCard
-      variant="grid"
+      variant={variant}
       id={pkg.id}
       displayCode={pkg.displayCode}
       name={pkg.name}
@@ -15,9 +15,11 @@ export default function PackageCard({ pkg, onRegister }) {
       priceNote="/tháng"
       specCaption={pkg.specCaption}
       specLine={pkg.specLine}
-      statIcon={pkg.statIcon}
+      downloadMbps={pkg.downloadMbps}
+      uploadMbps={pkg.uploadMbps}
       features={pkg.features}
       onRegister={onRegister}
+      onViewDetails={onViewDetails ? () => onViewDetails(pkg) : undefined}
     />
   );
 }

@@ -1,24 +1,7 @@
 import { motion } from "framer-motion";
-import { Camera, Check, Gauge, Info, Sparkles, Tv, Wifi } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Gauge, Info } from "lucide-react";
+import { formatVnd } from "../lib/packageHelpers.js";
 
-const STAT_ICONS = {
-  gauge: Gauge,
-  tv: Tv,
-  camera: Camera,
-  sparkles: Sparkles,
-  wifi: Wifi,
-};
-
-function formatPrice(vnd) {
-  return new Intl.NumberFormat("vi-VN").format(vnd) + "đ";
-}
-
-const defaultPromo = "Giảm 50k khi thanh toán Online +";
-
-/**
- * Thẻ gói thống nhất (layout SpeedX): nền cam, badge xanh, ảnh, giá xanh, ô thông số, checklist, 2 nút.
- * @param {'scroll' | 'grid'} variant — scroll: width cố định cho carousel; grid: full ô lưới
- */
 export default function ProductPlanCard({
   id,
   displayCode,
@@ -28,128 +11,153 @@ export default function ProductPlanCard({
   heroImage,
   accentImage,
   price,
-  priceNote,
+  priceNote = "/tháng",
   priceDisplay,
-  specCaption,
+  specCaption = "Tốc độ (tải xuống / tải lên)",
+  downloadMbps,
+  uploadMbps,
   specLine,
-  statIcon = "gauge",
   features,
   onRegister,
-  variant = "grid",
+  onViewDetails,
+  variant = "carousel",
 }) {
-  const Icon = STAT_ICONS[statIcon] ?? Gauge;
-  const badgeText = promoBadge?.trim() || defaultPromo;
   const list = Array.isArray(features) ? features : [];
+  const strip = promoBadge?.trim();
+  const hasSpeed = downloadMbps != null || uploadMbps != null;
+  const down = downloadMbps ?? null;
+  const up = uploadMbps ?? down;
 
-  const articleClass =
-    variant === "scroll"
-      ? "w-[min(100%,20rem)] shrink-0 snap-start"
-      : "h-full w-full min-w-0";
+  const widthClass =
+    variant === "carousel"
+      ? "h-full w-[min(88vw,17.5rem)] shrink-0 sm:w-[18.5rem]"
+      : variant === "grid"
+        ? "h-full w-full min-w-[min(88vw,17.5rem)] shrink-0 md:min-w-0"
+        : "h-full w-full";
 
   return (
     <motion.article
       layout
-      className={`${articleClass} flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md ring-1 ring-slate-100/80`}
-      whileHover={{ y: -4 }}
+      className={`${widthClass} flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.08)]`}
+      whileHover={{ y: -2 }}
       transition={{ type: "spring", stiffness: 400, damping: 30 }}
     >
-      <div className="relative overflow-hidden bg-fpt text-white">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-        <div className="absolute left-3 top-3 z-10 max-w-[11rem] sm:max-w-[14rem]">
-          <span className="inline-block rounded bg-fpt-blue px-2 py-1 text-[0.65rem] font-bold leading-tight text-white shadow-sm">
-            {badgeText}
-          </span>
+      {strip ? (
+        <div className="bg-[#1e2a5a] px-3 py-2 text-center">
+          <p className="text-[0.7rem] font-semibold leading-snug text-white sm:text-xs">{strip}</p>
         </div>
+      ) : null}
 
-        <div className="flex gap-3 px-4 pb-5 pt-14 sm:px-5 sm:pb-6 sm:pt-16">
-          <div className="min-w-0 flex-1">
-            <h3 className="text-lg font-black leading-tight tracking-tight sm:text-xl">{displayCode}</h3>
-            <p className="mt-2 text-[0.7rem] font-medium leading-relaxed text-white/95 sm:text-xs">{tagline}</p>
-          </div>
-
-          <div className="relative h-[7.25rem] w-[6.5rem] shrink-0 sm:h-[7.75rem] sm:w-[7rem]">
-            <img
-              src={heroImage}
-              alt=""
-              className="h-full w-full rounded-lg object-cover shadow-lg ring-2 ring-white/30"
-            />
-            <div className="absolute -bottom-1 -right-1 flex h-16 w-16 items-center justify-center rounded-lg bg-white p-1 shadow-lg ring-2 ring-white/50">
-              <img src={accentImage} alt="" className="h-full w-full object-contain" />
-            </div>
-          </div>
+      <div className="relative h-[7.5rem] overflow-hidden bg-gradient-to-br from-[#0066b3] via-[#0056a3] to-[#1e3799] sm:h-[8.25rem]">
+        {heroImage ? (
+          <img
+            src={heroImage}
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-right opacity-90 mix-blend-overlay"
+            loading="lazy"
+          />
+        ) : null}
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#0056a3]/95 via-[#0056a3]/70 to-transparent"
+          aria-hidden
+        />
+        {accentImage ? (
+          <img
+            src={accentImage}
+            alt=""
+            className="absolute bottom-2 right-2 z-[1] h-12 w-12 object-contain drop-shadow-md sm:h-14 sm:w-14"
+            loading="lazy"
+          />
+        ) : null}
+        <div className="relative z-[2] flex h-full flex-col justify-center px-4 pr-16">
+          <p className="text-sm font-extrabold uppercase leading-tight tracking-wide text-white sm:text-base">
+            {displayCode}
+          </p>
+          {tagline ? (
+            <p className="mt-1 line-clamp-2 text-[0.65rem] font-medium leading-snug text-white/90 sm:text-xs">
+              {tagline}
+            </p>
+          ) : null}
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <h4 className="text-base font-bold text-slate-900 sm:text-lg">{name}</h4>
+      <div className="flex flex-1 flex-col p-4">
+        <h3 className="text-base font-bold text-slate-900">{name}</h3>
 
-        <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <div className="mt-2 flex flex-wrap items-baseline gap-1">
           {priceDisplay ? (
-            <span className="text-2xl font-extrabold tracking-tight text-blue-600 sm:text-[1.65rem]">
-              {priceDisplay}
-            </span>
+            <span className="text-xl font-extrabold text-secondary sm:text-2xl">{priceDisplay}</span>
           ) : typeof price === "number" ? (
             <>
-              <span className="text-2xl font-extrabold tracking-tight text-blue-600 sm:text-[1.65rem]">
-                {formatPrice(price)}
+              <span className="text-xl font-extrabold text-secondary sm:text-2xl">
+                {formatVnd(price)}
               </span>
               {priceNote ? (
                 <span className="text-sm font-medium text-slate-500">{priceNote}</span>
               ) : null}
-              <button
-                type="button"
-                className="inline-flex rounded-full p-1 text-blue-600 hover:bg-blue-50"
-                title="Thông tin giá minh họa"
-                aria-label="Thông tin giá"
-              >
-                <Info className="h-4 w-4" strokeWidth={2} />
-              </button>
             </>
           ) : (
-            <span className="text-xl font-bold text-slate-700">Liên hệ</span>
+            <span className="text-lg font-bold text-slate-700">Liên hệ</span>
           )}
+          <button
+            type="button"
+            className="ml-0.5 rounded-full p-0.5 text-slate-400 hover:text-secondary"
+            aria-label="Thông tin giá"
+          >
+            <Info className="h-4 w-4" strokeWidth={2} />
+          </button>
         </div>
 
-        <div className="mt-4 flex items-stretch justify-between gap-3 rounded-xl bg-slate-100 px-3 py-3">
-          <div className="min-w-0">
-            <p className="text-[0.65rem] font-medium uppercase tracking-wide text-slate-500 sm:text-xs">
-              {specCaption}
-            </p>
-            <p className="mt-1 text-sm font-bold leading-snug text-slate-800 sm:text-base">{specLine}</p>
+        <div className="mt-3 flex items-center gap-2 rounded-xl bg-slate-100 px-3 py-2.5">
+          <div className="min-w-0 flex-1">
+            <p className="text-[0.65rem] font-medium text-slate-500">{specCaption}</p>
+            {hasSpeed ? (
+              <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm font-bold text-slate-800">
+                {down != null ? (
+                  <span className="inline-flex items-center gap-0.5">
+                    <ArrowDown className="h-3.5 w-3.5 text-secondary" strokeWidth={2.5} />
+                    {down} Mbps
+                  </span>
+                ) : null}
+                {up != null ? (
+                  <span className="inline-flex items-center gap-0.5">
+                    <ArrowUp className="h-3.5 w-3.5 text-secondary" strokeWidth={2.5} />
+                    {up} Mbps
+                  </span>
+                ) : null}
+              </p>
+            ) : specLine ? (
+              <p className="mt-0.5 text-sm font-bold text-slate-800">{specLine}</p>
+            ) : (
+              <p className="mt-0.5 text-sm text-slate-500">—</p>
+            )}
           </div>
-          <div className="flex shrink-0 items-center">
-            <Icon className="h-10 w-10 text-fpt sm:h-11 sm:w-11" strokeWidth={1.5} />
-          </div>
+          <Gauge className="h-9 w-9 shrink-0 text-primary/80" strokeWidth={1.25} />
         </div>
 
-        <ul className="mt-4 flex-1 space-y-2">
+        <ul className="mt-3 flex-1 space-y-1.5">
           {list.map((line) => (
-            <li key={line} className="flex gap-2 text-xs text-slate-700 sm:text-sm">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                <Check className="h-3 w-3" strokeWidth={3} />
+            <li key={line} className="flex gap-2 text-[0.8125rem] leading-snug text-slate-700">
+              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-emerald-600">
+                <Check className="h-3.5 w-3.5" strokeWidth={3} />
               </span>
-              <span className="leading-snug">{line}</span>
+              <span>{line}</span>
             </li>
           ))}
         </ul>
 
-        <div
-          className={
-            variant === "grid"
-              ? "mt-auto flex flex-col gap-2 pt-5"
-              : "mt-5 flex flex-col gap-2"
-          }
-        >
+        <div className="mt-4 flex flex-col gap-2">
           <button
             type="button"
-            onClick={() => onRegister(id)}
-            className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+            onClick={() => onRegister?.(id)}
+            className="w-full rounded-xl bg-secondary py-2.5 text-sm font-semibold text-white shadow-sm transition hover:brightness-110"
           >
             Đăng ký ngay
           </button>
           <button
             type="button"
-            className="w-full rounded-xl bg-slate-100 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-slate-200"
+            onClick={() => onViewDetails?.()}
+            className="w-full rounded-xl bg-slate-100 py-2.5 text-sm font-semibold text-secondary transition hover:bg-slate-200"
           >
             Xem chi tiết
           </button>

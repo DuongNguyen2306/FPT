@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import SpeedXCard from "./SpeedXCard.jsx";
 
-export default function SpeedXSection({ packages, onRegister }) {
+export default function SpeedXSection({ packages, onRegister, onViewDetails }) {
   const scroller = useRef(null);
 
   const scrollBy = (delta) => {
@@ -10,13 +10,13 @@ export default function SpeedXSection({ packages, onRegister }) {
   };
 
   return (
-    <div className="relative mb-14 sm:mb-16">
+    <div className="relative mb-14 rounded-3xl bg-light px-3 py-10 sm:mb-16 sm:px-6 sm:py-12">
       <div className="mb-8 text-center px-2">
-        <h2 className="text-xl font-bold leading-snug text-slate-900 sm:text-2xl lg:text-[1.65rem]">
+        <h2 className="text-xl font-bold leading-snug text-secondary sm:text-2xl lg:text-[1.65rem]">
           SpeedX — Gói cước Wi-Fi 7 siêu tốc độ trên hạ tầng XGS-PON
         </h2>
         <p className="mx-auto mt-2 max-w-3xl text-sm text-slate-600 sm:text-base">
-          Thẻ sản phẩm minh họa theo layout FPT: nền cam, ảnh người dùng & thiết bị, giá và nút hành động màu xanh.
+          Wi-Fi 7 trên hạ tầng XGS-PON — gói tốc độ cao cho hộ gia đình và creator.
         </p>
       </div>
 
@@ -39,14 +39,25 @@ export default function SpeedXSection({ packages, onRegister }) {
         <ChevronRight className="h-5 w-5" />
       </button>
 
-      <div
-        ref={scroller}
-        className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pl-1 pr-1 pt-1 sm:gap-6 lg:px-2"
-      >
-        {packages.map((item) => (
-          <SpeedXCard key={item.id} item={item} onRegister={onRegister} />
-        ))}
-      </div>
+      {packages.length === 0 ? (
+        <p className="py-8 text-center text-sm text-slate-500">
+          Hiện chưa có gói SpeedX.
+        </p>
+      ) : (
+        <div
+          ref={scroller}
+          className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pl-1 pr-1 pt-1 sm:gap-6 lg:px-2"
+        >
+          {packages.map((item) => (
+            <SpeedXCard
+              key={item.id}
+              item={item}
+              onRegister={onRegister}
+              onViewDetails={onViewDetails}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="mt-4 flex justify-center gap-3 lg:hidden">
         <button

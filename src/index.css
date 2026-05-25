@@ -2,12 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
+@layer base {
+  html {
+    @apply text-base antialiased;
+    font-size: 16px;
+  }
+  body {
+    @apply bg-white text-slate-900;
+  }
 }
 
-body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+html {
+  scroll-behavior: smooth;
 }
 
 .scrollbar-hide {
@@ -16,4 +22,30 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+.hero-swiper .swiper-pagination {
+  bottom: 14px !important;
+}
+
+/* Trang đăng nhập — nền gradient + vòng tròn trang trí kiểu FPT */
+.login-page-bg {
+  background: linear-gradient(180deg, #7ec8f5 0%, #b8e4fa 35%, #e8f4fc 65%, #ffffff 100%);
+}
+
+/* Banner chi tiết gói — họa tiết ô vuông xiên */
+.package-detail-hero-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='8' y='12' width='48' height='32' rx='8' fill='%23ffffff' fill-opacity='0.12' transform='rotate(-12 32 28)'/%3E%3Crect x='52' y='48' width='56' height='36' rx='10' fill='%23ffffff' fill-opacity='0.08' transform='rotate(8 80 66)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+  opacity: 1;
+}
+
+.login-ripple-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 2.5rem;
+  pointer-events: none;
 }
