@@ -81,13 +81,13 @@ export default function LoginPage() {
 
   const submitLogin = async (e) => {
     e.preventDefault();
-    const login = account.trim();
+    const login = normalizeUsername(account) || account.trim();
     if (!login || !password) return;
 
     setLoading(true);
     setError("");
     try {
-      const data = await loginUnified({ account: login, password });
+      const data = await loginUnified({ account: login, password: password.trim() });
       const path = getPostLoginPath(data.role, { from, adminOnly: isAdminRequired });
       if (!path) {
         useAuthStore.getState().clearSession();
@@ -168,7 +168,7 @@ export default function LoginPage() {
 
           {isAdminRequired && mode === "login" ? (
             <p className="mt-4 text-center text-sm text-slate-600">
-              Đăng nhập tài khoản quản trị để vào khu admin.
+              Đăng nhập tài khoản quản trị.
             </p>
           ) : null}
 

@@ -34,7 +34,7 @@ export default function RegistrationStepper({ currentStep }) {
                 <Icon className="h-5 w-5" strokeWidth={active ? 2 : 1.75} />
               </span>
               <p
-                className={`mt-2 max-w-[7rem] text-xs font-medium leading-tight sm:max-w-none sm:text-sm ${
+                className={`mt-2 max-w-[5.5rem] text-[10px] font-medium leading-tight min-[380px]:max-w-[7rem] min-[380px]:text-xs sm:max-w-none sm:text-sm ${
                   active ? "text-[#0066b3]" : done ? "text-slate-700" : "text-slate-400"
                 }`}
               >

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import RegistrationStepper from "../components/registration/RegistrationStepper.jsx";
 import OrderSummaryCard from "../components/registration/OrderSummaryCard.jsx";
 import { getPackageById } from "../api/packagesApi.js";
@@ -7,9 +7,11 @@ import { createLead } from "../api/leadsApi.js";
 import { formatVnd } from "../lib/packageHelpers.js";
 import { normalizeVNPhone, validateVNPhoneMessage } from "../lib/phone.js";
 import { friendlyApiError } from "../lib/userFacingText.js";
+import ZaloChatFab from "../components/ZaloChatFab.jsx";
 
 export default function RegistrationPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const packageId = searchParams.get("packageId") ?? "";
   const from = searchParams.get("from") ?? "/";
@@ -115,8 +117,11 @@ export default function RegistrationPage() {
           installAddress: address.trim(),
         };
         if (packageId) body.packageId = packageId;
-        await createLead(body);
-        setStep(3);
+        const lead = await createLead(body);
+        navigate("/dat-hang-thanh-cong", {
+          replace: true,
+          state: { lead, package: pkg ?? null, from: location.pathname },
+        });
       } catch (err) {
         setSubmitError(friendlyApiError(err, "Gửi đăng ký không thành công. Vui lòng thử lại."));
       } finally {
@@ -126,7 +131,7 @@ export default function RegistrationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f4f8]">
+    <div className="min-h-screen overflow-x-hidden bg-[#f0f4f8]">
       <header className="border-b border-slate-100 bg-white">
         <div className="mx-auto flex h-16 max-w-6xl items-center px-4 sm:px-6">
           <Link to="/" className="flex items-center gap-2">
@@ -138,37 +143,12 @@ export default function RegistrationPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-6xl px-4 py-8 pb-safe-cta sm:px-6 sm:py-10 lg:pb-10">
         <RegistrationStepper currentStep={step} />
 
-        {step === 3 ? (
-          <div className="mx-auto mt-12 max-w-lg rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-              <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h1 className="mt-6 text-2xl font-bold text-slate-900">Hoàn tất đơn hàng</h1>
-            <p className="mt-3 text-slate-600">
-              Cảm ơn bạn đã đăng ký <strong>{packageName}</strong>. FPT Telecom sẽ liên hệ trong thời
-              gian sớm nhất.
-            </p>
-            {typeof price === "number" ? (
-              <p className="mt-2 text-sm text-slate-500">
-                Tạm tính: <span className="font-semibold text-[#0066b3]">{formatVnd(price)}</span>
-              </p>
-            ) : null}
-            <Link
-              to="/"
-              className="mt-8 inline-block rounded-lg bg-[#0066b3] px-8 py-3 text-sm font-semibold text-white hover:bg-[#0056a3]"
-            >
-              Về trang chủ
-            </Link>
-          </div>
-        ) : (
-          <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_340px] lg:items-start">
+        <div className="mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[1fr_340px] lg:items-start">
             <div>
-              <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8">
+              <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-8">
                 {step === 1 ? (
                   <>
                     <h1 className="text-xl font-bold text-slate-900 sm:text-2xl">
@@ -299,8 +279,25 @@ export default function RegistrationPage() {
               continueLabel={step === 1 ? "Tiếp tục" : "Xác nhận đăng ký"}
             />
           </div>
-        )}
       </div>
+
+      {step < 3 ? (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200/90 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-md pb-safe lg:hidden">
+          <button
+            type="button"
+            onClick={handleContinue}
+            disabled={
+              loading ||
+              (step === 1 ? !canContinueStep1 : !canContinueStep2)
+            }
+            className="w-full rounded-lg py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 enabled:bg-[#0066b3] enabled:hover:bg-[#0056a3]"
+          >
+            {loading ? "Đang xử lý…" : step === 1 ? "Tiếp tục" : "Xác nhận đăng ký"}
+          </button>
+        </div>
+      ) : null}
+
+      <ZaloChatFab raised={step < 3} />
     </div>
   );
 }

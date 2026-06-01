@@ -53,10 +53,10 @@ export default function PackageDetailHero({
           )}
 
           <div className="order-1 flex-1 text-center lg:order-2 lg:text-left">
-            <h1 className="text-4xl font-extrabold uppercase leading-none tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
+            <h1 className="text-2xl font-extrabold uppercase leading-tight tracking-tight text-white sm:text-4xl sm:leading-none lg:text-[3.25rem]">
               {line1}
             </h1>
-            <p className="mt-1 text-4xl font-extrabold uppercase leading-none tracking-tight text-[#7ee8ff] sm:text-5xl lg:text-[3.25rem]">
+            <p className="mt-1 text-2xl font-extrabold uppercase leading-tight tracking-tight text-[#7ee8ff] sm:text-4xl sm:leading-none lg:text-[3.25rem]">
               {line2}
             </p>
           </div>

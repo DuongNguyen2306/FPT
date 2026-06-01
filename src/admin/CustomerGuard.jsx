@@ -7,5 +7,9 @@ export default function CustomerGuard() {
     return <Navigate to="/admin/packages" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <div className="min-h-screen overflow-x-hidden">
+      <Outlet />
+    </div>
+  );
 }

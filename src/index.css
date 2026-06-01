@@ -6,9 +6,27 @@
   html {
     @apply text-base antialiased;
     font-size: 16px;
+    overflow-x: hidden;
   }
   body {
     @apply bg-white text-slate-900;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  }
+  .pb-safe-cta {
+    padding-bottom: max(5.5rem, calc(env(safe-area-inset-bottom, 0px) + 4.5rem));
+  }
+  .package-card-header {
+    aspect-ratio: 368 / 266;
+  }
+  .quiz-section-highlight {
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.35);
+    transition: box-shadow 0.4s ease;
   }
 }
 
@@ -24,8 +42,62 @@ html {
   display: none;
 }
 
-.hero-swiper .swiper-pagination {
-  bottom: 14px !important;
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-scaleUp {
+  animation: scaleUp 0.28s ease-out forwards;
+}
+
+/* Carousel trang chủ — kích thước lớn kiểu FPT */
+.hero-slide-frame {
+  aspect-ratio: 21 / 9;
+  min-height: clamp(180px, 52vw, 420px);
+  max-height: min(70vh, 520px);
+}
+
+@media (min-width: 640px) {
+  .hero-slide-frame {
+    min-height: clamp(280px, 42vw, 520px);
+    max-height: min(75vh, 580px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-slide-frame {
+    min-height: clamp(400px, 38vw, 620px);
+  }
+}
+
+.hero-carousel-wrap {
+  position: relative;
+}
+
+.hero-swiper-large .swiper-pagination {
+  bottom: 16px !important;
+  z-index: 10;
+}
+
+.hero-swiper-large .swiper-pagination-bullet {
+  width: 9px;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 1;
+  margin: 0 5px !important;
+}
+
+.hero-swiper-large .swiper-pagination-bullet-active {
+  width: 28px;
+  border-radius: 999px;
+  background: #fff !important;
 }
 
 /* Trang đăng nhập — nền gradient + vòng tròn trang trí kiểu FPT */

@@ -71,9 +71,9 @@ export default function OrderSummaryCard({
             <dd className="font-medium text-slate-800">{displayPhone}</dd>
           </div>
           {step >= 2 ? (
-            <div className="flex justify-between gap-4">
+            <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
               <dt className="shrink-0 text-slate-500">Địa chỉ</dt>
-              <dd className="max-w-[60%] text-right font-medium text-slate-800">
+              <dd className="font-medium text-slate-800 sm:max-w-[60%] sm:text-right">
                 {displayAddress}
               </dd>
             </div>
@@ -107,7 +107,7 @@ export default function OrderSummaryCard({
             type="button"
             onClick={onContinue}
             disabled={!canContinue || loading}
-            className="mt-4 w-full rounded-lg py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 enabled:bg-[#0066b3] enabled:hover:bg-[#0056a3]"
+            className="mt-4 hidden w-full rounded-lg py-3.5 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 enabled:bg-[#0066b3] enabled:hover:bg-[#0056a3] lg:block"
           >
             {loading ? "Đang xử lý…" : continueLabel}
           </button>

@@ -3,24 +3,13 @@ import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import PackageCard from "./PackageCard.jsx";
+import {
+  PACKAGE_LIST_TABS,
+  filterPackagesByTab,
+} from "./packages/packageListTabs.js";
+import { PACKAGE_CARD_CAROUSEL_WIDTH_CLASS } from "../lib/packageCardLayout.js";
 import "swiper/css";
 import "swiper/css/navigation";
-
-const TABS = [
-  { id: "personal", label: "Internet cá nhân", audiences: ["personal"] },
-  { id: "family", label: "Internet gia đình", audiences: ["family", "personal"] },
-  { id: "gamer", label: "Internet game thủ", audiences: ["gamer", "personal"] },
-  {
-    id: "combo-camera",
-    label: "Combo Internet Camera",
-    audiences: ["combo-camera", "personal"],
-  },
-  {
-    id: "combo-tv",
-    label: "Combo Internet Truyền hình",
-    audiences: ["combo-tv", "personal"],
-  },
-];
 
 export default function FeaturedProductsSection({
   packages,
@@ -34,11 +23,10 @@ export default function FeaturedProductsSection({
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  const filtered = useMemo(() => {
-    const tab = TABS.find((t) => t.id === activeTab) ?? TABS[0];
-    const list = packages.filter((p) => tab.audiences.includes(p.audience ?? "personal"));
-    return list.length ? list : packages;
-  }, [packages, activeTab]);
+  const filtered = useMemo(
+    () => filterPackagesByTab(packages, activeTab),
+    [packages, activeTab]
+  );
 
   return (
     <section className="py-8 sm:py-10">
@@ -76,7 +64,7 @@ export default function FeaturedProductsSection({
       </div>
 
       <div className="scrollbar-hide -mx-4 mb-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0">
-        {TABS.map((tab) => {
+        {PACKAGE_LIST_TABS.map((tab) => {
           const active = tab.id === activeTab;
           return (
             <button
@@ -118,7 +106,7 @@ export default function FeaturedProductsSection({
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="h-[26rem] w-[min(88vw,17.5rem)] shrink-0 animate-pulse rounded-2xl bg-slate-100"
+                className={`${PACKAGE_CARD_CAROUSEL_WIDTH_CLASS} shrink-0 animate-pulse rounded-2xl bg-slate-100`}
               />
             ))}
           </div>

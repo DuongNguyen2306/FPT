@@ -9,7 +9,11 @@ export function patchMe(body) {
   return api.patch("/me", body);
 }
 
-/** @param {{ page?: number; limit?: number }} [params] */
-export function getMyLeads(params) {
-  return api.get("/me/leads", { params });
+/**
+ * @param {{ page?: number; limit?: number }} [params]
+ * @returns {Promise<import('../types/api').MyLeadsResponse>}
+ */
+export async function getMyLeads(params) {
+  const { data } = await api.get("/me/leads", { params });
+  return data;
 }

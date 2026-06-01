@@ -25,7 +25,7 @@ export default function PackageStatCards({
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6">
-      <h2 className="text-center text-2xl font-bold text-slate-900 sm:text-3xl">{name}</h2>
+      <h2 className="text-center text-xl font-bold text-slate-900 sm:text-2xl md:text-3xl">{name}</h2>
 
       <div
         className={`mt-8 grid gap-4 ${showDevices ? "md:grid-cols-3" : "md:grid-cols-2"}`}

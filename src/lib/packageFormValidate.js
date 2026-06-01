@@ -22,7 +22,7 @@ export function validateImageFile(file) {
  * @returns {string | null}
  */
 export function validatePackageForm(values, opts) {
-  const { isCreate, heroFile, heroImageUrl } = opts;
+  const { heroFile } = opts;
 
   if (!values.code?.trim()) return "Mã gói không được để trống.";
   if (!values.name?.trim()) return "Tên gói không được để trống.";
@@ -32,10 +32,6 @@ export function validatePackageForm(values, opts) {
 
   const heroErr = validateImageFile(heroFile);
   if (heroErr) return heroErr;
-
-  if (isCreate && !heroFile && !heroImageUrl?.trim() && !values.heroImage?.trim()) {
-    return "Tạo mới: chọn ảnh hero từ máy hoặc có URL ảnh.";
-  }
 
   return null;
 }

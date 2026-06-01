@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import SpeedXCard from "./SpeedXCard.jsx";
+import CompactPackageCard from "./packages/CompactPackageCard.jsx";
+import { PACKAGE_CARD_CAROUSEL_WIDTH_CLASS } from "../lib/packageCardLayout.js";
 
 export default function SpeedXSection({ packages, onRegister, onViewDetails }) {
   const scroller = useRef(null);
@@ -22,7 +23,7 @@ export default function SpeedXSection({ packages, onRegister, onViewDetails }) {
 
       <button
         type="button"
-        onClick={() => scrollBy(-340)}
+        onClick={() => scrollBy(-300)}
         className="absolute left-0 top-[58%] z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-md transition hover:border-blue-200 hover:text-blue-600 lg:flex"
         style={{ marginLeft: "-0.25rem" }}
         aria-label="Cuộn trái"
@@ -31,7 +32,7 @@ export default function SpeedXSection({ packages, onRegister, onViewDetails }) {
       </button>
       <button
         type="button"
-        onClick={() => scrollBy(340)}
+        onClick={() => scrollBy(300)}
         className="absolute right-0 top-[58%] z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-md transition hover:border-blue-200 hover:text-blue-600 lg:flex"
         style={{ marginRight: "-0.25rem" }}
         aria-label="Cuộn phải"
@@ -46,15 +47,28 @@ export default function SpeedXSection({ packages, onRegister, onViewDetails }) {
       ) : (
         <div
           ref={scroller}
-          className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pl-1 pr-1 pt-1 sm:gap-6 lg:px-2"
+          className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto pb-3 pl-1 pr-1 pt-1 sm:gap-6 lg:justify-center lg:px-2"
         >
           {packages.map((item) => (
-            <SpeedXCard
+            <div
               key={item.id}
-              item={item}
-              onRegister={onRegister}
-              onViewDetails={onViewDetails}
-            />
+              className={`flex h-full ${PACKAGE_CARD_CAROUSEL_WIDTH_CLASS} shrink-0 snap-center`}
+            >
+              <CompactPackageCard
+                id={item.id}
+                name={item.shortName}
+                displayCode={item.displayCode}
+                tagline={item.tagline}
+                heroImage={item.heroImage}
+                price={item.price}
+                downloadMbps={item.metadata?.downloadMbps}
+                uploadMbps={item.metadata?.uploadMbps}
+                specLine={item.specLine}
+                features={item.features}
+                onRegister={onRegister}
+                onViewDetails={() => onViewDetails?.(item)}
+              />
+            </div>
           ))}
         </div>
       )}
@@ -62,7 +76,7 @@ export default function SpeedXSection({ packages, onRegister, onViewDetails }) {
       <div className="mt-4 flex justify-center gap-3 lg:hidden">
         <button
           type="button"
-          onClick={() => scrollBy(-280)}
+          onClick={() => scrollBy(-300)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm hover:text-blue-600"
           aria-label="Cuộn trái"
         >
@@ -70,7 +84,7 @@ export default function SpeedXSection({ packages, onRegister, onViewDetails }) {
         </button>
         <button
           type="button"
-          onClick={() => scrollBy(280)}
+          onClick={() => scrollBy(300)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm hover:text-blue-600"
           aria-label="Cuộn phải"
         >

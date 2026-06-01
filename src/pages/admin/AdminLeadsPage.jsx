@@ -2,20 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import LeadDetailDrawer from "../../admin/LeadDetailDrawer.jsx";
 import { listAdminLeads } from "../../api/adminLeads.js";
 import { formatDateTime } from "../../lib/adminFormat.js";
-
-const STATUS_BADGE = {
-  NEW: "bg-blue-100 text-blue-800",
-  CONTACTED: "bg-amber-100 text-amber-800",
-  CONVERTED: "bg-emerald-100 text-emerald-800",
-  CANCELLED: "bg-slate-200 text-slate-600",
-};
-
-const STATUS_LABEL = {
-  NEW: "Mới",
-  CONTACTED: "Đã liên hệ",
-  CONVERTED: "Chốt",
-  CANCELLED: "Hủy",
-};
+import {
+  LEAD_STATUS_LABEL,
+  getLeadStatusBadgeClass,
+  getLeadStatusLabel,
+} from "../../lib/leadStatus.js";
 
 function getApiError(err) {
   const msg = err?.response?.data?.message ?? err?.message;
@@ -78,9 +69,9 @@ export default function AdminLeadsPage() {
           className="rounded-lg border border-slate-200 px-3 py-2 text-sm"
         >
           <option value="">Tất cả trạng thái</option>
-          {Object.keys(STATUS_LABEL).map((s) => (
+          {Object.keys(LEAD_STATUS_LABEL).map((s) => (
             <option key={s} value={s}>
-              {STATUS_LABEL[s]}
+              {LEAD_STATUS_LABEL[s]}
             </option>
           ))}
         </select>
@@ -164,11 +155,9 @@ export default function AdminLeadsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${
-                          STATUS_BADGE[lead.status] ?? "bg-slate-100"
-                        }`}
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${getLeadStatusBadgeClass(lead.status)}`}
                       >
-                        {STATUS_LABEL[lead.status] ?? lead.status}
+                        {getLeadStatusLabel(lead.status)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">

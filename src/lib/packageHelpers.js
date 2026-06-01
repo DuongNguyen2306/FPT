@@ -1,4 +1,17 @@
 /**
+ * Gói chỉ dùng làm slide carousel (không hiện trong danh sách sản phẩm).
+ * @param {{ code?: string; metadata?: { bannerOnly?: boolean } }} p
+ */
+export function isBannerOnlyPackage(p) {
+  if (!p) return false;
+  const meta = p.metadata ?? {};
+  if (meta.bannerOnly === true) return true;
+  return String(p.code ?? "")
+    .toLowerCase()
+    .startsWith("banner-");
+}
+
+/**
  * @param {number | null | undefined} price
  */
 export function formatVnd(price) {
@@ -46,6 +59,65 @@ export function normalizePrivileges(items) {
       title: x.title ?? "",
       description: x.description ?? "",
       icon: x.icon,
+      imageUrl: x.imageUrl,
     };
   }).filter((x) => x.title);
+}
+
+/**
+ * @param {import('../types/api').PackageMetadata['privileges']} items
+ * @returns {import('../types/admin').PrivilegeFormItem[]}
+ */
+export function privilegesToFormItems(items) {
+  const list = normalizePrivileges(items);
+  if (!list.length) {
+    return [{ icon: "wifi", title: "", description: "", imageUrl: "" }];
+  }
+  return list.map((p) => ({
+    icon: typeof p.icon === "string" && p.icon ? p.icon : "wifi",
+    title: p.title,
+    description: p.description ?? "",
+    imageUrl: p.imageUrl ?? "",
+  }));
+}
+
+/**
+ * @param {import('../types/admin').PrivilegeFormItem[]} items
+ */
+export function formPrivilegesToMetadata(items) {
+  if (!Array.isArray(items)) return [];
+  return items
+    .map((p) => ({
+      icon: (p.icon ?? "wifi").trim(),
+      title: p.title?.trim() ?? "",
+      description: p.description?.trim() || undefined,
+      imageUrl: p.imageUrl?.trim() || undefined,
+    }))
+    .filter((p) => p.title);
+}
+
+/**
+ * @param {import('../types/api').PackageMetadata['includedEquipment']} items
+ * @returns {import('../types/admin').EquipmentFormItem[]}
+ */
+export function equipmentToFormItems(items) {
+  const list = normalizeEquipment(items);
+  if (!list.length) return [{ label: "", imageUrl: "" }];
+  return list.map((e) => ({
+    label: e.label,
+    imageUrl: e.imageUrl ?? "",
+  }));
+}
+
+/**
+ * @param {import('../types/admin').EquipmentFormItem[]} items
+ */
+export function formEquipmentToMetadata(items) {
+  if (!Array.isArray(items)) return [];
+  return items
+    .map((e) => ({
+      label: e.label?.trim() ?? "",
+      imageUrl: e.imageUrl?.trim() || undefined,
+    }))
+    .filter((e) => e.label);
 }

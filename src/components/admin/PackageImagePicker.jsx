@@ -1,10 +1,10 @@
 import { useId, useEffect, useRef } from "react";
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus, Loader2, X } from "lucide-react";
 
 const ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 
 /**
- * Chọn file từ máy + preview (blob URL). Không upload — parent gửi FormData khi submit.
+ * Chọn file từ máy + preview. Parent upload ngay khi chọn và gán URL vào form.
  * @param {{
  *   label: string;
  *   required?: boolean;
@@ -14,6 +14,8 @@ const ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
  *   onFileChange: (file: File | null) => void;
  *   error?: string;
  *   disabled?: boolean;
+ *   uploading?: boolean;
+ *   variant?: "default" | "banner";
  * }} props
  */
 export default function PackageImagePicker({
@@ -25,6 +27,8 @@ export default function PackageImagePicker({
   onFileChange,
   error = "",
   disabled = false,
+  uploading = false,
+  variant = "default",
 }) {
   const inputId = useId();
   const blobRef = useRef(null);
@@ -54,6 +58,10 @@ export default function PackageImagePicker({
   };
 
   const showUrl = previewUrl || existingUrl;
+  const previewClass =
+    variant === "banner"
+      ? "aspect-[21/9] w-full object-cover"
+      : "max-h-48 w-full object-contain";
 
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-4">
@@ -76,12 +84,28 @@ export default function PackageImagePicker({
       </div>
 
       {showUrl ? (
-        <div className="mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
-          <img src={showUrl} alt="" className="max-h-48 w-full object-contain" />
+        <div className="relative mt-3 overflow-hidden rounded-lg border border-slate-200 bg-white">
+          <img src={showUrl} alt="" className={previewClass} />
+          {uploading ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/40 text-white">
+              <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+          ) : null}
         </div>
       ) : (
-        <div className="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white text-xs text-slate-400">
-          Chưa có ảnh — chọn file từ máy
+        <div
+          className={`mt-3 flex items-center justify-center rounded-lg border border-dashed border-slate-300 bg-white text-xs text-slate-400 ${
+            variant === "banner" ? "aspect-[21/9] w-full" : "h-32"
+          }`}
+        >
+          {uploading ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Đang tải ảnh lên…
+            </span>
+          ) : (
+            "Chưa có ảnh — chọn file từ máy"
+          )}
         </div>
       )}
 
@@ -89,27 +113,27 @@ export default function PackageImagePicker({
         <label
           htmlFor={inputId}
           className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-secondary shadow-sm transition hover:bg-slate-50 ${
-            disabled ? "pointer-events-none opacity-50" : ""
+            disabled || uploading ? "pointer-events-none opacity-50" : ""
           }`}
         >
-          <ImagePlus className="h-4 w-4" />
-          Chọn ảnh từ máy
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+          {uploading ? "Đang tải lên…" : "Chọn ảnh từ máy"}
         </label>
         <input
           id={inputId}
           type="file"
           accept={ACCEPT}
           className="sr-only"
-          disabled={disabled}
+          disabled={disabled || uploading}
           onChange={onPick}
         />
-        {file ? (
+        {file && !uploading ? (
           <p className="mt-2 text-xs text-slate-500">
             Đã chọn: <span className="font-medium text-slate-700">{file.name}</span> (
-            {(file.size / 1024).toFixed(0)} KB) — sẽ tải lên khi bạn lưu gói
+            {(file.size / 1024).toFixed(0)} KB)
           </p>
-        ) : existingUrl ? (
-          <p className="mt-2 text-xs text-slate-500">Ảnh hiện tại trên hệ thống. Chọn ảnh mới để thay thế.</p>
+        ) : existingUrl && !uploading ? (
+          <p className="mt-2 text-xs text-emerald-700">Ảnh đã lưu trên hệ thống. Chọn ảnh mới để thay.</p>
         ) : null}
       </div>
 

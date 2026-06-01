@@ -1,3 +1,10 @@
+import {
+  equipmentToFormItems,
+  formEquipmentToMetadata,
+  formPrivilegesToMetadata,
+  privilegesToFormItems,
+} from "./packageHelpers.js";
+
 export function formatVnd(price) {
   if (price == null || Number.isNaN(Number(price))) return "Liên hệ";
   return new Intl.NumberFormat("vi-VN").format(Number(price)) + "đ";
@@ -26,15 +33,6 @@ export function arrayToLines(arr) {
   return Array.isArray(arr) ? arr.join("\n") : "";
 }
 
-/** @param {import('../types/api').PackageMetadata['includedEquipment']} arr */
-export function equipmentToLines(arr) {
-  if (!Array.isArray(arr) || !arr.length) return "";
-  return arr
-    .map((x) => (typeof x === "string" ? x : x.label ?? x.name ?? ""))
-    .filter(Boolean)
-    .join("\n");
-}
-
 /**
  * @param {import('../types/admin').PackageFormValues} v
  */
@@ -46,8 +44,10 @@ export function packageFormToBody(v) {
   if (v.uploadMbps.trim()) metadata.uploadMbps = Number(v.uploadMbps);
   if (v.maxDevices.trim()) metadata.maxDevices = Number(v.maxDevices);
   if (v.audience.trim()) metadata.audience = v.audience.trim();
-  const equipment = linesToArray(v.includedEquipmentText);
-  const privileges = linesToArray(v.privilegesText);
+  if (v.heroHeadline?.trim()) metadata.heroHeadline = v.heroHeadline.trim();
+  if (v.lifestyleImageUrl?.trim()) metadata.lifestyleImageUrl = v.lifestyleImageUrl.trim();
+  const equipment = formEquipmentToMetadata(v.equipment);
+  const privileges = formPrivilegesToMetadata(v.privileges);
   if (equipment.length) metadata.includedEquipment = equipment;
   if (privileges.length) metadata.privileges = privileges;
 
@@ -61,8 +61,9 @@ export function packageFormToBody(v) {
     description: v.description.trim() || undefined,
     promoBadge: v.promoBadge.trim() || undefined,
     billingCycle: v.billingCycle,
-    heroImage: v.heroImage.trim(),
-    imageUrl: v.heroImage.trim(),
+    bannerImage: v.bannerImage?.trim() || undefined,
+    heroImage: v.heroImage.trim() || undefined,
+    imageUrl: v.heroImage.trim() || undefined,
     accentImage: v.accentImage.trim() || undefined,
     specCaption: v.specCaption.trim() || undefined,
     specLine: v.specLine.trim() || undefined,
@@ -96,6 +97,7 @@ export function packageToFormValues(pkg) {
     promoBadge: pkg.promoBadge ?? "",
     billingCycle: pkg.billingCycle ?? "MONTHLY",
     price: pkg.price != null ? String(pkg.price) : pkg.monthlyPrice != null ? String(pkg.monthlyPrice) : "",
+    bannerImage: pkg.bannerImage ?? "",
     heroImage: pkg.heroImage ?? pkg.imageUrl ?? "",
     accentImage: pkg.accentImage ?? "",
     specCaption: pkg.specCaption ?? "Tốc độ (tải xuống / tải lên)",
@@ -110,12 +112,10 @@ export function packageToFormValues(pkg) {
     uploadMbps: meta.uploadMbps != null ? String(meta.uploadMbps) : "",
     maxDevices: meta.maxDevices != null ? String(meta.maxDevices) : "",
     audience: meta.audience ?? "",
-    includedEquipmentText: equipmentToLines(meta.includedEquipment),
-    privilegesText: arrayToLines(
-      meta.privileges?.map((x) =>
-        typeof x === "string" ? x : x.title ?? ""
-      )
-    ),
+    heroHeadline: meta.heroHeadline ?? "",
+    lifestyleImageUrl: meta.lifestyleImageUrl ?? "",
+    equipment: equipmentToFormItems(meta.includedEquipment),
+    privileges: privilegesToFormItems(meta.privileges),
   };
 }
 
@@ -132,6 +132,7 @@ export const EMPTY_PACKAGE_FORM = {
   price: "",
   priceContact: false,
   speedLabel: "",
+  bannerImage: "",
   heroImage: "",
   accentImage: "",
   specCaption: "",
@@ -144,6 +145,8 @@ export const EMPTY_PACKAGE_FORM = {
   uploadMbps: "",
   maxDevices: "",
   audience: "personal",
-  includedEquipmentText: "",
-  privilegesText: "",
+  heroHeadline: "",
+  lifestyleImageUrl: "",
+  equipment: [{ label: "", imageUrl: "" }],
+  privileges: [{ icon: "wifi", title: "", description: "", imageUrl: "" }],
 };

@@ -9,6 +9,8 @@ import { fetchPackageDetail } from "../api/packagesApi.js";
 import { mapDtoToDetailView } from "../lib/mapPackageFromApi.ts";
 import { formatVnd } from "../lib/packageHelpers.js";
 import Footer from "../components/Footer.jsx";
+import FaqSection from "../components/faq/FaqSection.jsx";
+import ZaloChatFab from "../components/ZaloChatFab.jsx";
 import { registrationPath } from "../lib/registrationRoutes.js";
 
 const TYPE_BREADCRUMB = {
@@ -64,14 +66,14 @@ export default function PackageDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f4f8]">
+    <div className="min-h-screen overflow-x-hidden bg-[#f0f4f8]">
       <Navbar
         onOpenLogin={() => navigate("/login")}
         onOpenLead={openRegister}
       />
 
       <div className="border-b border-slate-100 bg-white">
-        <nav className="mx-auto flex max-w-5xl items-center gap-1.5 px-4 py-3 text-sm text-slate-500 sm:px-6">
+        <nav className="mx-auto flex max-w-5xl min-w-0 items-center gap-1.5 overflow-hidden px-4 py-3 text-sm text-slate-500 sm:px-6">
           <Link to="/" className="inline-flex items-center text-[#0066b3] hover:underline">
             <Home className="h-4 w-4" />
           </Link>
@@ -82,7 +84,7 @@ export default function PackageDetailPage() {
           {detail ? (
             <>
               <ChevronRight className="h-4 w-4 shrink-0" />
-              <span className="font-medium text-slate-800">{detail.name}</span>
+              <span className="min-w-0 truncate font-medium text-slate-800">{detail.name}</span>
             </>
           ) : null}
         </nav>
@@ -211,7 +213,13 @@ export default function PackageDetailPage() {
             ) : null}
           </div>
 
-          <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200/80 bg-white/95 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md">
+          <FaqSection
+            id="faq"
+            maxWidth="detail"
+            className="mb-28 bg-transparent py-10 sm:mb-32 sm:py-12"
+          />
+
+          <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200/80 bg-white/95 pb-safe shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-md">
             <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 sm:py-4">
               {detail.heroImage ? (
                 <img
@@ -248,6 +256,8 @@ export default function PackageDetailPage() {
       ) : null}
 
       <Footer />
+
+      <ZaloChatFab raised />
     </div>
   );
 }

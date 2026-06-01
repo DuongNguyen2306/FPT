@@ -26,6 +26,13 @@ function pickId(p: PackageDto): string {
   return String(p.id ?? p._id ?? p.code ?? "");
 }
 
+function pickBannerImage(p: PackageDto): string | undefined {
+  const meta = p.metadata as { bannerImage?: string } | undefined;
+  const url = p.bannerImage ?? meta?.bannerImage;
+  return typeof url === "string" && url.trim() ? url.trim() : undefined;
+}
+
+/** Ảnh sản phẩm (thẻ gói, trang chi tiết) — không dùng banner. */
 function pickImage(p: PackageDto): string | undefined {
   const url = p.heroImage ?? p.imageUrl ?? p.image;
   return typeof url === "string" && url.trim() ? url.trim() : undefined;
@@ -83,6 +90,7 @@ export interface ProductPlanItem {
   metadata?: PackageMetadata;
   tagline?: string;
   promoBadge?: string;
+  bannerImage?: string;
   heroImage?: string;
   accentImage?: string | null;
   price?: number;
@@ -106,6 +114,7 @@ export interface SpeedXItem {
   displayCode: string;
   shortName: string;
   tagline?: string;
+  bannerImage?: string;
   heroImage?: string;
   price?: number;
   specCaption: string;
@@ -138,6 +147,7 @@ export function mapPackageToProductPlan(
     name,
     tagline: p.tagline ?? p.description,
     promoBadge: p.promoBadge,
+    bannerImage: pickBannerImage(p),
     heroImage: pickImage(p),
     accentImage: p.accentImage ?? p.secondaryImage ?? null,
     price: pickPrice(p),
@@ -182,6 +192,7 @@ export function mapPackageToSpeedX(
     displayCode: (p.displayCode ?? p.code ?? type).toString().toUpperCase(),
     shortName,
     tagline: p.tagline ?? p.description,
+    bannerImage: pickBannerImage(p),
     heroImage: pickImage(p),
     price,
     specCaption: p.specCaption ?? "",

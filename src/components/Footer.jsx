@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Facebook,
   Instagram,
@@ -6,43 +8,19 @@ import {
   Phone,
   Youtube,
 } from "lucide-react";
+import { buildFooterProductLinks, loadSiteNavigation } from "../lib/buildSiteNavigation.js";
 
-const COLS = [
-  {
-    title: "Về FPT Telecom",
-    links: [
-      { href: "#", label: "Giới thiệu" },
-      { href: "#", label: "Tin tức" },
-      { href: "#", label: "Tuyển dụng" },
-      { href: "#", label: "Đối tác" },
-    ],
-  },
+const COLS_BASE = [
   {
     title: "Khách hàng",
     links: [
-      { href: "#", label: "Hướng dẫn sử dụng" },
-      { href: "#", label: "Thanh toán cước" },
-      { href: "#", label: "Góp ý / phản ánh" },
-      { href: "#", label: "Câu hỏi thường gặp" },
-    ],
-  },
-  {
-    title: "Sản phẩm",
-    links: [
-      { href: "#internet", label: "Internet" },
-      { href: "#truyen-hinh", label: "Truyền hình FPT Play" },
-      { href: "#camera", label: "Camera an ninh" },
-      { href: "#dich-vu", label: "Dịch vụ thêm" },
+      { to: "/tra-cuu-don", label: "Tra cứu đơn đăng ký", internal: true },
+      { to: "/#faq", label: "Câu hỏi thường gặp", internal: true },
     ],
   },
   {
     title: "Hỗ trợ",
-    links: [
-      { href: "tel:19006600", label: "Hotline 24/7" },
-      { href: "#", label: "Điểm giao dịch" },
-      { href: "#", label: "Bảo hành thiết bị" },
-      { href: "#", label: "Điều khoản sử dụng" },
-    ],
+    links: [{ href: "tel:19006600", label: "Hotline 24/7" }],
   },
 ];
 
@@ -53,6 +31,34 @@ const SOCIAL = [
 ];
 
 export default function Footer() {
+  const [productLinks, setProductLinks] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadSiteNavigation()
+      .then(({ displayGroups }) => {
+        if (!cancelled) setProductLinks(buildFooterProductLinks(displayGroups));
+      })
+      .catch(() => {
+        if (!cancelled) setProductLinks([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const cols = [
+    ...COLS_BASE,
+    ...(productLinks.length
+      ? [
+          {
+            title: "Sản phẩm",
+            links: productLinks.map((l) => ({ ...l, internal: true })),
+          },
+        ]
+      : []),
+  ];
+
   return (
     <footer className="border-t border-slate-200 bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
@@ -118,41 +124,45 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 grid gap-10 border-t border-slate-200 pt-10 sm:grid-cols-2 lg:grid-cols-4">
-          {COLS.map((col) => (
-            <div key={col.title}>
-              <h2 className="text-sm font-bold uppercase tracking-wide text-secondary">{col.title}</h2>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((l) => (
-                  <li key={l.label}>
-                    <a
-                      href={l.href}
-                      className="text-sm text-slate-600 transition hover:text-primary"
-                    >
-                      {l.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+        {cols.length > 0 ? (
+          <div
+            className={`mt-12 grid gap-10 border-t border-slate-200 pt-10 sm:grid-cols-2 ${
+              cols.length >= 3 ? "lg:grid-cols-3" : "lg:grid-cols-2"
+            }`}
+          >
+            {cols.map((col) => (
+              <div key={col.title}>
+                <h2 className="text-sm font-bold uppercase tracking-wide text-secondary">{col.title}</h2>
+                <ul className="mt-4 space-y-2.5">
+                  {col.links.map((l) => (
+                    <li key={l.label}>
+                      {l.internal && l.to ? (
+                        <Link
+                          to={l.to}
+                          className="text-sm text-slate-600 transition hover:text-primary"
+                        >
+                          {l.label}
+                        </Link>
+                      ) : (
+                        <a
+                          href={l.href ?? "#"}
+                          className="text-sm text-slate-600 transition hover:text-primary"
+                        >
+                          {l.label}
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="border-t border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-5 text-center text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:text-left lg:px-8">
           <p>© {new Date().getFullYear()} FPT Telecom. Bảo lưu mọi quyền.</p>
-          <p className="sm:text-right">
-            <a href="#" className="hover:text-primary">
-              Chính sách bảo mật
-            </a>
-            <span className="mx-2 text-slate-300" aria-hidden>
-              |
-            </span>
-            <a href="#" className="hover:text-primary">
-              Điều khoản
-            </a>
-          </p>
         </div>
       </div>
     </footer>

@@ -1,4 +1,6 @@
 import PackageImagePicker from "../components/admin/PackageImagePicker.jsx";
+import EquipmentFormRepeater from "../components/admin/EquipmentFormRepeater.jsx";
+import PrivilegesFormRepeater from "../components/admin/PrivilegesFormRepeater.jsx";
 
 const inputClass =
   "mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20";
@@ -18,11 +20,17 @@ const TYPE_OPTIONS = [
  *   isEdit?: boolean;
  *   heroFile?: File | null;
  *   accentFile?: File | null;
+ *   bannerFile?: File | null;
  *   heroPreview?: string | null;
  *   accentPreview?: string | null;
+ *   bannerPreview?: string | null;
  *   onHeroFileChange?: (f: File | null) => void;
  *   onAccentFileChange?: (f: File | null) => void;
- *   imageErrors?: { hero?: string; accent?: string };
+ *   onBannerFileChange?: (f: File | null) => void;
+ *   imageErrors?: { hero?: string; accent?: string; banner?: string };
+ *   heroUploading?: boolean;
+ *   accentUploading?: boolean;
+ *   bannerUploading?: boolean;
  *   disabled?: boolean;
  * }} props
  */
@@ -32,11 +40,17 @@ export default function PackageFormFields({
   isEdit = false,
   heroFile = null,
   accentFile = null,
+  bannerFile = null,
   heroPreview = null,
   accentPreview = null,
+  bannerPreview = null,
   onHeroFileChange,
   onAccentFileChange,
+  onBannerFileChange,
   imageErrors = {},
+  heroUploading = false,
+  accentUploading = false,
+  bannerUploading = false,
   disabled = false,
 }) {
   const patch = (key, val) => onChange({ ...values, [key]: val });
@@ -125,6 +139,47 @@ export default function PackageFormFields({
         </div>
       </section>
 
+      <section className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 sm:p-6">
+        <h2 className="text-lg font-bold text-slate-900">Ảnh sản phẩm &amp; banner</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Ảnh dùng cho <strong>thẻ gói</strong>, <strong>SpeedX</strong> và <strong>trang chi tiết</strong>. Banner
+          21:9 dùng cho carousel trang chủ.
+        </p>
+        <div className="mt-4 grid gap-4">
+          <PackageImagePicker
+            label="Ảnh banner carousel (21:9)"
+            file={bannerFile}
+            previewUrl={bannerPreview}
+            existingUrl={values.bannerImage}
+            onFileChange={onBannerFileChange ?? (() => {})}
+            error={imageErrors.banner}
+            disabled={disabled}
+            uploading={bannerUploading}
+            variant="banner"
+          />
+          <PackageImagePicker
+            label="Ảnh chính sản phẩm"
+            file={heroFile}
+            previewUrl={heroPreview}
+            existingUrl={values.heroImage}
+            onFileChange={onHeroFileChange ?? (() => {})}
+            error={imageErrors.hero}
+            disabled={disabled}
+            uploading={heroUploading}
+          />
+          <PackageImagePicker
+            label="Ảnh modem trên hero (trang chi tiết)"
+            file={accentFile}
+            previewUrl={accentPreview}
+            existingUrl={values.accentImage}
+            onFileChange={onAccentFileChange ?? (() => {})}
+            error={imageErrors.accent}
+            disabled={disabled}
+            uploading={accentUploading}
+          />
+        </div>
+      </section>
+
       <section>
         <h2 className="text-lg font-bold text-slate-900">Giá &amp; tốc độ</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -168,32 +223,6 @@ export default function PackageFormFields({
       </section>
 
       <section>
-        <h2 className="text-lg font-bold text-slate-900">Ảnh gói</h2>
-        <p className="mt-1 text-xs text-slate-500">Chọn ảnh từ máy tính. Ảnh sẽ được tải lên khi bạn lưu gói.</p>
-        <div className="mt-4 grid gap-4">
-          <PackageImagePicker
-            label="Ảnh đại diện"
-            required={!isEdit}
-            file={heroFile}
-            previewUrl={heroPreview}
-            existingUrl={values.heroImage}
-            onFileChange={onHeroFileChange ?? (() => {})}
-            error={imageErrors.hero}
-            disabled={disabled}
-          />
-          <PackageImagePicker
-            label="Ảnh phụ (modem / thiết bị)"
-            file={accentFile}
-            previewUrl={accentPreview}
-            existingUrl={values.accentImage}
-            onFileChange={onAccentFileChange ?? (() => {})}
-            error={imageErrors.accent}
-            disabled={disabled}
-          />
-        </div>
-      </section>
-
-      <section>
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-lg font-bold text-slate-900">Tính năng nổi bật</h2>
           <button
@@ -211,67 +240,85 @@ export default function PackageFormFields({
               <input
                 value={line}
                 onChange={(e) => setFeature(index, e.target.value)}
-                className={`${inputClass} mt-0 flex-1`}
-                placeholder="Modem Wi-Fi 6"
+                className={inputClass}
+                placeholder="Mô tả tính năng"
                 disabled={disabled}
               />
-              {values.features.length > 1 ? (
-                <button
-                  type="button"
-                  onClick={() => removeFeature(index)}
-                  disabled={disabled}
-                  className="shrink-0 rounded-lg border border-slate-200 px-2 text-xs text-slate-500 hover:text-red-600 disabled:opacity-50"
-                >
-                  Xóa
-                </button>
-              ) : null}
+              <button
+                type="button"
+                onClick={() => removeFeature(index)}
+                disabled={disabled || values.features.length <= 1}
+                className="shrink-0 rounded-lg border border-slate-200 px-2 text-xs text-slate-500 hover:bg-red-50 hover:text-red-600 disabled:opacity-40"
+              >
+                Xóa
+              </button>
             </li>
           ))}
         </ul>
       </section>
 
       <section>
-        <h2 className="text-lg font-bold text-slate-900">Thông tin bổ sung</h2>
+        <h2 className="text-lg font-bold text-slate-900">Metadata (Internet / SpeedX)</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-medium">Tốc độ tải xuống (Mbps)</label>
-            <input type="number" value={values.downloadMbps} onChange={set("downloadMbps")} className={inputClass} />
+            <label className="text-sm font-medium">Download (Mbps)</label>
+            <input value={values.downloadMbps} onChange={set("downloadMbps")} className={inputClass} />
           </div>
           <div>
-            <label className="text-sm font-medium">Tốc độ tải lên (Mbps)</label>
-            <input type="number" value={values.uploadMbps} onChange={set("uploadMbps")} className={inputClass} />
+            <label className="text-sm font-medium">Upload (Mbps)</label>
+            <input value={values.uploadMbps} onChange={set("uploadMbps")} className={inputClass} />
           </div>
           <div>
             <label className="text-sm font-medium">Số thiết bị tối đa</label>
-            <input type="number" value={values.maxDevices} onChange={set("maxDevices")} className={inputClass} />
+            <input value={values.maxDevices} onChange={set("maxDevices")} className={inputClass} />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-sm font-medium">Tiêu đề hero trang chi tiết</label>
+            <input
+              value={values.heroHeadline}
+              onChange={set("heroHeadline")}
+              className={inputClass}
+              placeholder="Ví dụ: INTERNET CHO CÁ NHÂN"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-sm font-medium">Ảnh minh họa (URL)</label>
+            <input
+              value={values.lifestyleImageUrl}
+              onChange={set("lifestyleImageUrl")}
+              className={inputClass}
+              placeholder="https://..."
+            />
           </div>
           <div>
-            <label className="text-sm font-medium">Nhóm hiển thị trang chủ</label>
-            <select value={values.audience} onChange={set("audience")} className={inputClass}>
-              <option value="personal">Cá nhân</option>
-              <option value="family">Gia đình</option>
-              <option value="gamer">Game thủ</option>
-              <option value="combo-camera">Combo camera</option>
-              <option value="combo-tv">Combo truyền hình</option>
+            <label className="text-sm font-medium">Nhóm tab trang chủ *</label>
+            <select value={values.audience} onChange={set("audience")} className={inputClass} required>
+              <option value="personal">Internet cá nhân</option>
+              <option value="family">Internet gia đình</option>
+              <option value="gamer">Internet game thủ</option>
+              <option value="combo-camera">Combo Internet Camera</option>
+              <option value="combo-tv">Combo Internet Truyền hình</option>
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="text-sm font-medium">Thiết bị đi kèm (mỗi dòng một mục)</label>
-            <textarea
-              value={values.includedEquipmentText}
-              onChange={set("includedEquipmentText")}
-              rows={3}
-              className={`${inputClass} font-mono`}
-            />
+            <label className="text-sm font-medium">Thiết bị kèm theo</label>
+            <div className="mt-3">
+              <EquipmentFormRepeater
+                items={values.equipment}
+                onChange={(equipment) => onChange({ ...values, equipment })}
+                disabled={disabled}
+              />
+            </div>
           </div>
           <div className="sm:col-span-2">
-            <label className="text-sm font-medium">Đặc quyền (mỗi dòng một mục)</label>
-            <textarea
-              value={values.privilegesText}
-              onChange={set("privilegesText")}
-              rows={3}
-              className={`${inputClass} font-mono`}
-            />
+            <label className="text-sm font-medium">Đặc quyền</label>
+            <div className="mt-3">
+              <PrivilegesFormRepeater
+                items={values.privileges}
+                onChange={(privileges) => onChange({ ...values, privileges })}
+                disabled={disabled}
+              />
+            </div>
           </div>
         </div>
       </section>

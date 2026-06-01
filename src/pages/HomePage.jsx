@@ -3,13 +3,16 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import Hero from "../components/Hero.jsx";
 import OfferCard from "../components/OfferCard.jsx";
-import FeaturedProductsSection from "../components/FeaturedProductsSection.jsx";
+import PackageList from "../components/packages/PackageList.jsx";
 import Footer from "../components/Footer.jsx";
+import ZaloChatFab from "../components/ZaloChatFab.jsx";
 import { registrationPath } from "../lib/registrationRoutes.js";
 import SpeedXSection from "../components/SpeedXSection.jsx";
 import InternetNeedsQuiz from "../components/InternetNeedsQuiz.jsx";
 import BetweenPackagesPromo from "../components/BetweenPackagesPromo.jsx";
-import { listPackages } from "../api/packagesApi.js";
+import { isBannerOnlyPackage } from "../lib/packageHelpers.js";
+import { listPublicBanners } from "../api/bannersApi.js";
+import { fetchPackagesCatalog } from "../lib/packagesCatalog.js";
 import {
   findComboPackageId,
   mapPackageToProductPlan,
@@ -17,12 +20,15 @@ import {
 } from "../lib/mapPackageFromApi.ts";
 import { friendlyApiError } from "../lib/userFacingText.js";
 import { packageDetailPath } from "../lib/packageRoutes.js";
+import FaqSection from "../components/faq/FaqSection.jsx";
 
+/** Grid gói: 1 cột mobile, carousel ngang từ sm, grid đầy đủ từ md */
 const gridPackages =
-  "-mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto px-4 pb-3 scrollbar-hide md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-4";
+  "grid grid-cols-1 place-items-center gap-6 sm:-mx-4 sm:flex sm:snap-x sm:snap-mandatory sm:gap-6 sm:overflow-x-auto sm:px-4 sm:pb-3 sm:scrollbar-hide md:mx-0 md:grid md:snap-none md:grid-cols-2 md:gap-6 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-4";
 
 export default function HomePage() {
   const navigate = useNavigate();
+
   const [loadState, setLoadState] = useState({
     loading: true,
     error: "",
@@ -31,26 +37,44 @@ export default function HomePage() {
     play: [],
     camera: [],
     service: [],
+    standaloneBanners: [],
+    carouselPackages: [],
   });
 
   const reload = useCallback(async () => {
     setLoadState((s) => ({ ...s, loading: true, error: "" }));
     try {
-      const [speedxRaw, internetRaw, playRaw, cameraRaw, serviceRaw] = await Promise.all([
-        listPackages("SPEEDX"),
-        listPackages("INTERNET"),
-        listPackages("FPT_PLAY"),
-        listPackages("CAMERA"),
-        listPackages("SERVICE"),
+      const [catalog, standaloneBanners] = await Promise.all([
+        fetchPackagesCatalog(),
+        listPublicBanners().catch(() => []),
       ]);
+      const { speedx: speedxRaw, internet: internetRaw, play: playRaw, camera: cameraRaw, service: serviceRaw } =
+        catalog;
+      const allRaw = [
+        ...internetRaw,
+        ...speedxRaw,
+        ...playRaw,
+        ...cameraRaw,
+        ...serviceRaw,
+      ];
       setLoadState({
         loading: false,
         error: "",
-        speedx: speedxRaw.map((p) => mapPackageToSpeedX(p, "SPEEDX")),
-        internet: internetRaw.map((p) => mapPackageToProductPlan(p, "INTERNET")),
-        play: playRaw.map((p) => mapPackageToProductPlan(p, "FPT_PLAY")),
-        camera: cameraRaw.map((p) => mapPackageToProductPlan(p, "CAMERA")),
-        service: serviceRaw.map((p) => mapPackageToProductPlan(p, "SERVICE")),
+        speedx: speedxRaw.filter((p) => !isBannerOnlyPackage(p)).map((p) => mapPackageToSpeedX(p, "SPEEDX")),
+        internet: internetRaw
+          .filter((p) => !isBannerOnlyPackage(p))
+          .map((p) => mapPackageToProductPlan(p, "INTERNET")),
+        play: playRaw
+          .filter((p) => !isBannerOnlyPackage(p))
+          .map((p) => mapPackageToProductPlan(p, "FPT_PLAY")),
+        camera: cameraRaw
+          .filter((p) => !isBannerOnlyPackage(p))
+          .map((p) => mapPackageToProductPlan(p, "CAMERA")),
+        service: serviceRaw
+          .filter((p) => !isBannerOnlyPackage(p))
+          .map((p) => mapPackageToProductPlan(p, "SERVICE")),
+        standaloneBanners,
+        carouselPackages: allRaw.filter((p) => p.bannerImage?.trim()),
       });
     } catch (e) {
       setLoadState((s) => ({
@@ -62,6 +86,8 @@ export default function HomePage() {
         play: [],
         camera: [],
         service: [],
+        standaloneBanners: [],
+        carouselPackages: [],
       }));
     }
   }, []);
@@ -71,18 +97,29 @@ export default function HomePage() {
   }, [reload]);
 
   const heroSlides = useMemo(() => {
-    const pool = [...loadState.internet, ...loadState.speedx];
-    return pool
-      .filter((p) => p.heroImage)
-      .slice(0, 5)
-      .map((p) => ({
-        id: p.id,
-        title: p.name ?? p.shortName ?? p.displayCode ?? "",
-        subtitle: p.tagline ?? "",
-        image: p.heroImage,
-      }))
-      .filter((s) => s.title);
-  }, [loadState.internet, loadState.speedx]);
+    const fromStandalone = (loadState.standaloneBanners ?? [])
+      .filter((b) => b.isActive !== false)
+      .map((b) => ({
+        id: String(b.id ?? b._id ?? b.imageUrl ?? b.bannerImage),
+        title: b.title ?? b.name ?? "",
+        subtitle: b.subtitle ?? b.tagline ?? "",
+        image: b.imageUrl ?? b.bannerImage,
+        sortOrder: b.sortOrder ?? 0,
+      }));
+
+    const fromPackages = (loadState.carouselPackages ?? []).map((p) => ({
+      id: `pkg-${p.id ?? p._id}`,
+      title: p.name ?? p.shortName ?? p.displayCode ?? "",
+      subtitle: p.tagline ?? "",
+      image: p.bannerImage,
+      sortOrder: p.sortOrder ?? 0,
+    }));
+
+    return [...fromStandalone, ...fromPackages]
+      .filter((s) => s.image)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .slice(0, 8);
+  }, [loadState.carouselPackages, loadState.standaloneBanners]);
 
   const firstInternetId = loadState.internet[0]?.id ?? "";
   const secondInternetId = loadState.internet[1]?.id ?? firstInternetId;
@@ -102,12 +139,13 @@ export default function HomePage() {
   };
 
   const openPackageDetail = (pkg) => {
-    const path = packageDetailPath(pkg);
-    if (path !== "/") navigate(path);
+    if (!pkg) return;
+    const path = packageDetailPath({ code: pkg.code, id: pkg.id });
+    if (path && path !== "/") navigate(path);
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen overflow-x-hidden bg-white">
       <Navbar
         onOpenLogin={() => navigate("/login")}
         onOpenLead={() => openRegister(firstInternetId)}
@@ -148,9 +186,11 @@ export default function HomePage() {
               />
             )}
 
-            <FeaturedProductsSection
+            <PackageList
+              selfFetch={false}
               packages={loadState.internet}
               loading={loadState.loading}
+              error={loadState.error}
               onRegister={openRegister}
               onViewDetails={openPackageDetail}
             />
@@ -177,7 +217,7 @@ export default function HomePage() {
                 Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-[28rem] min-w-[min(88vw,20rem)] shrink-0 animate-pulse rounded-3xl bg-light md:min-w-0"
+                    className="h-[24rem] w-full max-w-[280px] animate-pulse rounded-3xl bg-light sm:h-[28rem] sm:min-w-[min(88vw,20rem)] sm:max-w-none md:min-w-0"
                   />
                 ))
               ) : loadState.play.length === 0 ? (
@@ -261,7 +301,7 @@ export default function HomePage() {
                 Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-[28rem] min-w-[min(88vw,20rem)] shrink-0 animate-pulse rounded-3xl bg-light md:min-w-0"
+                    className="h-[24rem] w-full max-w-[280px] animate-pulse rounded-3xl bg-light sm:h-[28rem] sm:min-w-[min(88vw,20rem)] sm:max-w-none md:min-w-0"
                   />
                 ))
               ) : loadState.service.length === 0 ? (
@@ -281,9 +321,13 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        <FaqSection id="faq" maxWidth="home" />
       </main>
 
       <Footer />
+
+      <ZaloChatFab />
     </div>
   );
 }

@@ -1,12 +1,25 @@
-import { linesToArray } from "./adminFormat.js";
+import { formEquipmentToMetadata, formPrivilegesToMetadata } from "./packageHelpers.js";
 
 /**
  * @param {import('../types/admin').PackageFormValues} values
- * @param {{ heroFile?: File | null; accentFile?: File | null; heroImageUrl?: string; folder?: string }} opts
+ * @param {{ bannerFile?: File | null; heroFile?: File | null; accentFile?: File | null; bannerImageUrl?: string; heroImageUrl?: string; folder?: string }} opts
  */
 export function buildPackageFormData(values, opts = {}) {
-  const { heroFile, accentFile, heroImageUrl, folder = "telecom-packages" } = opts;
+  const {
+    bannerFile,
+    heroFile,
+    accentFile,
+    bannerImageUrl,
+    heroImageUrl,
+    folder = "telecom-packages",
+  } = opts;
   const fd = new FormData();
+
+  if (bannerFile) {
+    fd.append("bannerFile", bannerFile);
+  } else if (bannerImageUrl?.trim()) {
+    fd.append("bannerImage", bannerImageUrl.trim());
+  }
 
   if (heroFile) {
     fd.append("file", heroFile);
@@ -26,8 +39,10 @@ export function buildPackageFormData(values, opts = {}) {
   if (values.uploadMbps.trim()) metadata.uploadMbps = Number(values.uploadMbps);
   if (values.maxDevices.trim()) metadata.maxDevices = Number(values.maxDevices);
   if (values.audience.trim()) metadata.audience = values.audience.trim();
-  const equipment = linesToArray(values.includedEquipmentText);
-  const privileges = linesToArray(values.privilegesText);
+  if (values.heroHeadline?.trim()) metadata.heroHeadline = values.heroHeadline.trim();
+  if (values.lifestyleImageUrl?.trim()) metadata.lifestyleImageUrl = values.lifestyleImageUrl.trim();
+  const equipment = formEquipmentToMetadata(values.equipment);
+  const privileges = formPrivilegesToMetadata(values.privileges);
   if (equipment.length) metadata.includedEquipment = equipment;
   if (privileges.length) metadata.privileges = privileges;
 

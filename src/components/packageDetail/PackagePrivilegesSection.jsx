@@ -1,10 +1,9 @@
-import { Gauge, Headphones, Smartphone, Wifi } from "lucide-react";
-
-const ICONS = [Wifi, Gauge, Smartphone, Headphones];
+import { Wifi } from "lucide-react";
+import { resolvePrivilegeIcon } from "../../lib/privilegeIcons.js";
 
 /**
  * @param {{
- *   privileges: { title: string; description?: string }[];
+ *   privileges: { title: string; description?: string; icon?: string; imageUrl?: string }[];
  *   lifestyleImageUrl?: string;
  *   heroImage?: string;
  *   onRegister: () => void;
@@ -21,17 +20,22 @@ export default function PackagePrivilegesSection({
   const sideImage = lifestyleImageUrl ?? heroImage;
 
   return (
-    <section className="mx-auto max-w-5xl rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-10">
+    <section className="mx-auto max-w-5xl rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-10">
       <h3 className="text-xl font-bold text-slate-900 sm:text-2xl">Đặc quyền dành riêng cho bạn</h3>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-center">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 min-[420px]:grid-cols-2">
           {privileges.map((item, index) => {
-            const Icon = ICONS[index % ICONS.length];
+            const Icon = resolvePrivilegeIcon(item.icon);
+            const customImg = item.imageUrl?.trim();
             return (
-              <div key={item.title} className="flex flex-col items-start gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e8f4fc] text-[#0066b3]">
-                  <Icon className="h-6 w-6" strokeWidth={1.75} />
+              <div key={`${item.title}-${index}`} className="flex flex-col items-start gap-3">
+                <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-[#e8f4fc] text-[#0066b3]">
+                  {customImg ? (
+                    <img src={customImg} alt="" className="h-8 w-8 object-contain" />
+                  ) : (
+                    <Icon className="h-6 w-6" strokeWidth={1.75} />
+                  )}
                 </span>
                 <div>
                   <p className="font-bold text-slate-900">{item.title}</p>
@@ -47,7 +51,7 @@ export default function PackagePrivilegesSection({
         </div>
 
         {sideImage ? (
-          <div className="relative hidden overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 via-white to-sky-50 lg:block">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-50 via-white to-sky-50 md:min-h-[240px] lg:min-h-[300px]">
             <img
               src={sideImage}
               alt=""
