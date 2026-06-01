@@ -52,7 +52,7 @@ export function getApiBaseUrl() {
   if (typeof raw === "string" && raw.trim()) {
     return raw.replace(/\/+$/, "");
   }
-  return "http://localhost:3000/api/v1";
+  return "https://webfpt-be.onrender.com/api/v1";
 }
 
 /**
