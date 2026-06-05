@@ -1,5 +1,6 @@
 import { Phone, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { HOTLINE_DISPLAY, HOTLINE_TEL } from "../lib/contact.js";
 
 /**
  * Thanh ưu đãi đặt giữa hai loại gói: Internet và Truyền hình (FPT Play).
@@ -34,11 +35,11 @@ export default function BetweenPackagesPromo({ promoText, onPickCombo }) {
 
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:shrink-0">
           <a
-            href="tel:19006600"
+            href={HOTLINE_TEL}
             className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-sm font-bold text-secondary shadow-md transition hover:bg-white sm:w-auto"
           >
             <Phone className="h-4 w-4 shrink-0" />
-            1900 6600
+            {HOTLINE_DISPLAY}
           </a>
           {onPickCombo ? (
             <button

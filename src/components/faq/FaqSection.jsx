@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { listPublicFaqs } from "../../api/faqsApi.js";
+import { HOTLINE_DISPLAY } from "../../lib/contact.js";
 import { friendlyApiError } from "../../lib/userFacingText.js";
 import FaqAccordionItem from "./FaqAccordionItem.jsx";
 
@@ -10,7 +11,7 @@ const MOCK_FAQS = [
     id: "mock-1",
     question: "Tổng chi phí lắp mạng Wifi Internet FPT là bao nhiêu?",
     answer:
-      "Chi phí phụ thuộc gói cước và chương trình khuyến mãi tại thời điểm đăng ký.\nLiên hệ 1900 6600 để được tư vấn chi tiết.",
+      `Chi phí phụ thuộc gói cước và chương trình khuyến mãi tại thời điểm đăng ký.\nLiên hệ ${HOTLINE_DISPLAY} để được tư vấn chi tiết.`,
     displayOrder: 0,
   },
   {
@@ -23,7 +24,7 @@ const MOCK_FAQS = [
   {
     id: "mock-3",
     question: "Tôi có thể đổi gói cước sau khi đăng ký không?",
-    answer: "Có. Bạn liên hệ tổng đài hoặc cửa hàng FPT để được hỗ trợ nâng/hạ gói theo chính sách.",
+    answer: `Có. Bạn liên hệ hotline ${HOTLINE_DISPLAY} hoặc cửa hàng FPT để được hỗ trợ nâng/hạ gói theo chính sách.`,
     displayOrder: 2,
   },
 ];

@@ -9,6 +9,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { buildFooterProductLinks, loadSiteNavigation } from "../lib/buildSiteNavigation.js";
+import { HOTLINE_DISPLAY, HOTLINE_TEL } from "../lib/contact.js";
 
 const COLS_BASE = [
   {
@@ -20,7 +21,7 @@ const COLS_BASE = [
   },
   {
     title: "Hỗ trợ",
-    links: [{ href: "tel:19006600", label: "Hotline 24/7" }],
+    links: [{ href: HOTLINE_TEL, label: `Hotline ${HOTLINE_DISPLAY}` }],
   },
 ];
 
@@ -97,15 +98,15 @@ export default function Footer() {
                 Tổng đài tư vấn
               </p>
               <a
-                href="tel:19006600"
+                href={HOTLINE_TEL}
                 className="mt-1 inline-flex items-center gap-2 text-2xl font-extrabold tracking-tight text-secondary sm:text-3xl"
               >
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                   <Phone className="h-5 w-5" strokeWidth={2} />
                 </span>
-                1900 6600
+                {HOTLINE_DISPLAY}
               </a>
-              <p className="mt-2 text-xs text-slate-500">Miễn phí cuộc gọi từ điện thoại cố định.</p>
+              <p className="mt-2 text-xs text-slate-500">Tư vấn lắp đặt Wifi FPT — gọi hoặc nhắn Zalo.</p>
             </div>
             <div className="h-px w-full bg-slate-100 sm:hidden" aria-hidden />
             <div className="space-y-3 text-sm text-slate-600">

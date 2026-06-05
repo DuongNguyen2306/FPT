@@ -1,8 +1,9 @@
-/** SĐT Zalo tư vấn mặc định (định dạng 0xxxxxxxxx) */
-export const DEFAULT_ZALO_PHONE = "0909137605";
+import {
+  DEFAULT_ZALO_CHAT_URL,
+  HOTLINE_DIGITS,
+} from "./contact.js";
 
-/** Link chat Zalo chuẩn: https://zalo.me/{số} */
-export const DEFAULT_ZALO_CHAT_URL = `https://zalo.me/${DEFAULT_ZALO_PHONE}`;
+export { HOTLINE_DIGITS as DEFAULT_ZALO_PHONE, DEFAULT_ZALO_CHAT_URL };
 
 /**
  * Chuẩn hóa link chat Zalo (không dùng id.zalo.me/login).

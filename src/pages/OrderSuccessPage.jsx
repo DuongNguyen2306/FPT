@@ -33,7 +33,10 @@ export default function OrderSuccessPage() {
   if (!hasLead && !useMock) {
     return (
       <SuccessPageBackdrop>
-        <Navbar />
+        <Navbar
+          onOpenLogin={() => navigate("/login", { state: { from: "/dat-hang-thanh-cong" } })}
+          onOpenLead={() => navigate("/dang-ky")}
+        />
         <main className="mx-auto flex min-h-[calc(100vh-10rem)] max-w-3xl items-center justify-center px-4 py-16 sm:px-6">
           <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
             <p className="text-sm text-gray-500">
@@ -99,7 +102,10 @@ export default function OrderSuccessPage() {
 
   return (
     <SuccessPageBackdrop>
-      <Navbar />
+      <Navbar
+        onOpenLogin={() => navigate("/login", { state: { from: "/dat-hang-thanh-cong" } })}
+        onOpenLead={() => navigate("/dang-ky")}
+      />
       <main className="mx-auto flex min-h-[calc(100vh-10rem)] max-w-3xl items-center justify-center px-4 py-10 sm:px-6">
         <RegistrationSuccessCard
           orderId={orderId}
@@ -113,16 +119,6 @@ export default function OrderSuccessPage() {
           packageDetailPath={packageDetailPath}
           onGoHome={() => navigate("/")}
         />
-        {phone ? (
-          <p className="mt-6 text-center text-sm text-slate-600">
-            <Link
-              to={`/tra-cuu-don?phone=${encodeURIComponent(phone)}`}
-              className="font-semibold text-primary hover:underline"
-            >
-              Xem tất cả đơn đăng ký của số này
-            </Link>
-          </p>
-        ) : null}
       </main>
       <Footer />
       <ZaloChatFab />

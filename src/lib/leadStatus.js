@@ -9,8 +9,8 @@ export const LEAD_STATUS_BADGE = {
 
 export const LEAD_STATUS_LABEL = {
   NEW: "Mới",
-  CONTACTED: "Đã liên hệ",
-  CONVERTED: "Chốt",
+  CONTACTED: "Đang tư vấn",
+  CONVERTED: "Đã chốt",
   CANCELLED: "Hủy",
 };
 

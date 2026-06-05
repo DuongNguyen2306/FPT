@@ -1,27 +1,91 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
-import { patchAdminLead } from "../api/adminLeads.js";
+import { patchPackageRegistration } from "../api/adminLeads.js";
+import { fetchAllAdminPackages } from "../api/adminPackages.js";
 import { formatDateTime } from "../lib/adminFormat.js";
+import { LEAD_STATUS_LABEL } from "../lib/leadStatus.js";
 
-const STATUS_OPTIONS = [
-  { value: "NEW", label: "Mới" },
-  { value: "CONTACTED", label: "Đã liên hệ" },
-  { value: "CONVERTED", label: "Chốt" },
-  { value: "CANCELLED", label: "Hủy" },
-];
+const CUSTOM_PACKAGE = "__custom__";
+const STATUS_OPTIONS = Object.entries(LEAD_STATUS_LABEL).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 export default function LeadDetailDrawer({ lead, onClose, onSaved }) {
   const [status, setStatus] = useState(lead?.status ?? "NEW");
-  const [adminNote, setAdminNote] = useState(lead?.adminNote ?? "");
+  const [adminNote, setAdminNote] = useState("");
+  const [packageSelect, setPackageSelect] = useState("");
+  const [customPackageName, setCustomPackageName] = useState("");
+  const [installAddress, setInstallAddress] = useState("");
+  const [packages, setPackages] = useState([]);
+  const [packagesLoading, setPackagesLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [addressError, setAddressError] = useState("");
+
+  const packageOptions = useMemo(() => {
+    const names = packages
+      .filter((p) => p.isActive !== false)
+      .map((p) => p.name)
+      .filter(Boolean);
+    const unique = [...new Set(names)];
+    const current = lead?.packageSnapshot?.name?.trim();
+    if (current && !unique.includes(current)) {
+      unique.unshift(current);
+    }
+    return unique;
+  }, [packages, lead?.packageSnapshot?.name]);
+
+  const resolvedPackageName =
+    packageSelect === CUSTOM_PACKAGE ? customPackageName.trim() : packageSelect.trim();
+
+  const addressValid = installAddress.trim().length >= 5;
 
   useEffect(() => {
-    if (lead) {
-      setStatus(lead.status);
-      setAdminNote(lead.adminNote ?? "");
-      setError("");
-    }
+    if (!lead) return;
+
+    const initialName = lead.packageSnapshot?.name?.trim() ?? "";
+    const initialNote = lead.adminNotes ?? lead.adminNote ?? "";
+
+    setStatus(lead.status ?? "NEW");
+    setAdminNote(initialNote);
+    setInstallAddress(lead.installAddress ?? "");
+    setCustomPackageName("");
+    setError("");
+    setAddressError("");
+
+    setPackageSelect(initialName || "");
+    setCustomPackageName("");
+
+    let cancelled = false;
+    setPackagesLoading(true);
+    (async () => {
+      try {
+        const items = await fetchAllAdminPackages();
+        if (cancelled) return;
+        setPackages(items ?? []);
+        const activeNames = (items ?? [])
+          .filter((p) => p.isActive !== false)
+          .map((p) => p.name)
+          .filter(Boolean);
+        if (initialName && !activeNames.includes(initialName)) {
+          setPackageSelect(initialName);
+        } else if (initialName) {
+          setPackageSelect(initialName);
+        } else {
+          setPackageSelect("");
+        }
+      } catch {
+        if (!cancelled) setPackages([]);
+        if (initialName) setPackageSelect(initialName);
+      } finally {
+        if (!cancelled) setPackagesLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [lead]);
 
   if (!lead) return null;
@@ -29,10 +93,25 @@ export default function LeadDetailDrawer({ lead, onClose, onSaved }) {
   const leadId = lead._id ?? lead.id;
 
   const onSave = async () => {
+    if (!addressValid) {
+      setAddressError("Địa chỉ lắp đặt cần ít nhất 5 ký tự.");
+      return;
+    }
+    if (!resolvedPackageName) {
+      setError("Vui lòng chọn hoặc nhập tên gói quan tâm.");
+      return;
+    }
+
     setSaving(true);
     setError("");
+    setAddressError("");
     try {
-      await patchAdminLead(leadId, { status, adminNote });
+      await patchPackageRegistration(leadId, {
+        packageName: resolvedPackageName,
+        status,
+        adminNotes: adminNote,
+        address: installAddress.trim(),
+      });
       onSaved?.();
       onClose?.();
     } catch (err) {
@@ -69,14 +148,6 @@ export default function LeadDetailDrawer({ lead, onClose, onSaved }) {
               <dd className="font-medium">{lead.phone}</dd>
             </div>
             <div>
-              <dt className="text-slate-500">Địa chỉ lắp đặt</dt>
-              <dd>{lead.installAddress}</dd>
-            </div>
-            <div>
-              <dt className="text-slate-500">Gói quan tâm</dt>
-              <dd>{lead.packageSnapshot?.name ?? "—"}</dd>
-            </div>
-            <div>
               <dt className="text-slate-500">Nguồn</dt>
               <dd>{lead.source ?? "Website"}</dd>
             </div>
@@ -90,7 +161,51 @@ export default function LeadDetailDrawer({ lead, onClose, onSaved }) {
 
           {error ? <p className="mb-3 text-sm text-red-600">{error}</p> : null}
 
-          <label className="block text-sm font-medium text-slate-700">Trạng thái</label>
+          <label className="block text-sm font-medium text-slate-700">Gói quan tâm</label>
+          <select
+            value={packageSelect}
+            onChange={(e) => {
+              setPackageSelect(e.target.value);
+              setError("");
+            }}
+            disabled={packagesLoading}
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 disabled:bg-slate-50"
+          >
+            <option value="">{packagesLoading ? "Đang tải gói…" : "— Chọn gói —"}</option>
+            {packageOptions.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+            <option value={CUSTOM_PACKAGE}>Khác (nhập tên gói)</option>
+          </select>
+          {packageSelect === CUSTOM_PACKAGE ? (
+            <input
+              type="text"
+              value={customPackageName}
+              onChange={(e) => {
+                setCustomPackageName(e.target.value);
+                setError("");
+              }}
+              placeholder="Tên gói tùy chỉnh"
+              className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5"
+            />
+          ) : null}
+
+          <label className="mt-4 block text-sm font-medium text-slate-700">Địa chỉ lắp đặt</label>
+          <textarea
+            value={installAddress}
+            onChange={(e) => {
+              setInstallAddress(e.target.value);
+              if (e.target.value.trim().length >= 5) setAddressError("");
+            }}
+            rows={3}
+            className="mt-1 w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5"
+            placeholder="Số nhà, đường, quận, thành phố…"
+          />
+          {addressError ? <p className="mt-1 text-xs text-red-600">{addressError}</p> : null}
+
+          <label className="mt-4 block text-sm font-medium text-slate-700">Trạng thái</label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
@@ -117,7 +232,7 @@ export default function LeadDetailDrawer({ lead, onClose, onSaved }) {
           <button
             type="button"
             onClick={onSave}
-            disabled={saving}
+            disabled={saving || !addressValid || !resolvedPackageName}
             className="w-full rounded-xl bg-secondary py-3 text-sm font-semibold text-white disabled:opacity-60"
           >
             {saving ? "Đang lưu…" : "Lưu thay đổi"}

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { loadSiteNavigation } from "../lib/buildSiteNavigation.js";
 import { getZaloUrl } from "../lib/env.js";
+import { HOTLINE_DISPLAY, HOTLINE_TEL } from "../lib/contact.js";
 import { PhoneIcon, ZaloMarkIcon } from "./icons/NavbarIcons.jsx";
 import MegaMenuPanel from "./navigation/MegaMenuPanel.jsx";
 import MobileNavAccordion from "./navigation/MobileNavAccordion.jsx";
@@ -15,6 +16,8 @@ import { logoutAll } from "../lib/logoutAuth.js";
 const ZALO_URL = getZaloUrl();
 
 export default function Navbar({ onOpenLogin, onOpenLead }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
   const [displayGroups, setDisplayGroups] = useState([]);
@@ -48,6 +51,22 @@ export default function Navbar({ onOpenLogin, onOpenLead }) {
   const handleLogout = async () => {
     await logoutAll();
     setMobileOpen(false);
+  };
+
+  const handleOpenLogin = () => {
+    if (onOpenLogin) {
+      onOpenLogin();
+      return;
+    }
+    navigate("/login", { state: { from: location.pathname } });
+  };
+
+  const handleOpenLead = () => {
+    if (onOpenLead) {
+      onOpenLead();
+      return;
+    }
+    navigate("/dang-ky");
   };
 
   const closeMega = () => setMegaOpen(false);
@@ -118,11 +137,11 @@ export default function Navbar({ onOpenLogin, onOpenLead }) {
           {/* Phải: Desktop actions */}
           <div className="hidden shrink-0 items-center space-x-3 lg:flex lg:space-x-5 xl:space-x-6">
             <a
-              href="tel:19006600"
+              href={HOTLINE_TEL}
               className="inline-flex items-center gap-2 text-sm font-bold text-orange-500 transition-colors hover:text-orange-600"
             >
               <PhoneIcon className="h-4 w-4" />
-              <span>1900 6600</span>
+              <span>{HOTLINE_DISPLAY}</span>
             </a>
 
             {displayName ? (
@@ -153,7 +172,7 @@ export default function Navbar({ onOpenLogin, onOpenLead }) {
 
             <button
               type="button"
-              onClick={onOpenLead}
+              onClick={handleOpenLead}
               className="rounded-xl bg-orange-500 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-orange-100 transition-all hover:bg-orange-600"
             >
               Đăng ký dịch vụ
@@ -170,7 +189,7 @@ export default function Navbar({ onOpenLogin, onOpenLead }) {
             ) : (
               <button
                 type="button"
-                onClick={onOpenLogin}
+                onClick={handleOpenLogin}
                 className="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50"
               >
                 Đăng nhập
@@ -259,11 +278,11 @@ export default function Navbar({ onOpenLogin, onOpenLead }) {
                 ) : null}
 
                 <a
-                  href="tel:19006600"
+                  href={HOTLINE_TEL}
                   className="mt-3 flex items-center gap-2 rounded-xl bg-orange-50 px-3 py-3 text-sm font-bold text-orange-500"
                 >
                   <PhoneIcon className="h-5 w-5" />
-                  1900 6600
+                  {HOTLINE_DISPLAY}
                 </a>
 
                 {displayName ? (
@@ -302,7 +321,7 @@ export default function Navbar({ onOpenLogin, onOpenLead }) {
                   type="button"
                   onClick={() => {
                     setMobileOpen(false);
-                    onOpenLead?.();
+                    handleOpenLead();
                   }}
                   className="w-full rounded-xl bg-orange-500 py-3 text-sm font-bold text-white shadow-md shadow-orange-100 hover:bg-orange-600"
                 >
@@ -322,7 +341,7 @@ export default function Navbar({ onOpenLogin, onOpenLead }) {
                     type="button"
                     onClick={() => {
                       setMobileOpen(false);
-                      onOpenLogin?.();
+                      handleOpenLogin();
                     }}
                     className="w-full rounded-xl border border-gray-200 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50"
                   >

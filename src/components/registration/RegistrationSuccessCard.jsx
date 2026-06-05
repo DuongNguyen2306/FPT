@@ -44,6 +44,7 @@ function DetailRow({ label, children }) {
  *   address: string;
  *   packageDetailPath?: string | null;
  *   onGoHome?: () => void;
+ *   phone?: string | null;
  * }} props
  */
 export default function RegistrationSuccessCard({
@@ -161,6 +162,17 @@ export default function RegistrationSuccessCard({
           </Link>
         ) : null}
       </div>
+
+      {phone ? (
+        <p className="mt-5 text-center text-sm">
+          <Link
+            to={`/tra-cuu-don?phone=${encodeURIComponent(phone)}`}
+            className="font-medium text-orange-500 transition-colors hover:text-orange-600"
+          >
+            Xem tất cả đơn đăng ký của số này
+          </Link>
+        </p>
+      ) : null}
     </article>
   );
 }
